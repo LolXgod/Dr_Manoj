@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor's Clinic</title>
+    <style>
+        /* Basic styles */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        header { background-color: #4CAF50; color: white; padding: 1rem; text-align: center; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 1rem; }
+        .section { margin-bottom: 2rem; padding: 1rem; background-color: white; border-radius: 8px; }
+        #plotImage { max-width: 100%; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Doctor's Clinic</h1>
+        <p>Your health is our priority</p>
+    </header>
+
+    <div class="container">
+        <div class="section" id="about">
+            <h2>About Us</h2>
+            <p>Welcome to Doctor's Clinic, where we prioritize your health.</p>
+        </div>
+
+        <div class="section" id="matlab-plot">
+            <h2>Upload Medical Data Plot</h2>
+            <form id="uploadForm">
+                <input type="file" id="fileInput" accept=".png, .jpg" required />
+                <button type="button" onclick="uploadFile()">Upload Plot</button>
+            </form>
+            <img id="plotImage" src="https://loremflickr.com/200/200?random=1" alt="MATLAB Plot">
+        </div>
+    </div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Content = event.target.result.split(',')[1];
+
+                const response = await fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/plot.png', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'token YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update plot.png',
+                        content: base64Content,
+                        branch: 'main'
+                    })
+                });
+
+                if (response.ok) {
+                    alert('File uploaded successfully!');
+                    document.getElementById('plotImage').src = `https://raw.githubusercontent.com/LolXgod/Dr_Manoj/main/plot.png?${new Date().getTime()}`;
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message}`);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+
+</body>
+</html>
+
